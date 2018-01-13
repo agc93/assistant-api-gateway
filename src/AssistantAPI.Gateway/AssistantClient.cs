@@ -20,7 +20,7 @@ namespace AssistantAPI.Gateway
 
         public AssistantClient(IOptions<HomeAssistantOptions> options, ILogger<AssistantClient> logger)
         {
-            BaseUrl = (options.Value.Address.StartsWith("http") ? options.Value.Address : $"http://{options.Value.Address}").AppendPathSegment("api");
+            BaseUrl = (options.Value.Address.StartsWith("http") ? options.Value.Address : $"http://{options.Value.Address}").Trim('"', '\'').AppendPathSegment("api");
             // DefaultRequestHeaders.Accept
             //     .Add(new MediaTypeWithQualityHeaderValue("application/json"));
             FlurlHttp.Configure(settings => {

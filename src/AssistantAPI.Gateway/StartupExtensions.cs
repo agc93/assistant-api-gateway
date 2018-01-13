@@ -28,7 +28,7 @@ namespace AssistantAPI.Gateway
             return opts;
         }
 
-        public static IApplicationBuilder UseCorsPolicy(this IApplicationBuilder app)
+        public static IApplicationBuilder UseWildcardCorsPolicy(this IApplicationBuilder app)
         {
             app.UseCors(c =>
                 c.AllowAnyHeader()
