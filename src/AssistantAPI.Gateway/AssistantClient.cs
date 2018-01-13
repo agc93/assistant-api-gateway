@@ -8,6 +8,7 @@ using AssistantAPI.Gateway.Configuration;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -15,7 +16,9 @@ namespace AssistantAPI.Gateway
 {
     public class AssistantClient
     {
-        public AssistantClient(IOptions<HomeAssistantOptions> options)
+        private readonly ILogger<AssistantClient> _logger;
+
+        public AssistantClient(IOptions<HomeAssistantOptions> options, ILogger<AssistantClient> logger)
         {
             BaseUrl = (options.Value.Address.StartsWith("http") ? options.Value.Address : $"http://{options.Value.Address}").AppendPathSegment("api");
             // DefaultRequestHeaders.Accept
@@ -28,6 +31,8 @@ namespace AssistantAPI.Gateway
                 };
                 settings.JsonSerializer = new NewtonsoftJsonSerializer(jsonSettings);
             });
+            _logger = logger;
+            _logger.LogInformation($"Initialized AssistantClient for '{BaseUrl}'");
         }
 
         private string BaseUrl { get; }
@@ -35,10 +40,12 @@ namespace AssistantAPI.Gateway
         public async Task<HttpResponseMessage> SendEvent(string eventName, Dictionary<string, string> eventData = null)
         {
             eventData = eventData ?? new Dictionary<string, string>();
-            var result = await BaseUrl
+            var url = BaseUrl
                 .AppendPathSegment("events")
-                .AppendPathSegment(eventName)
-                .PostJsonAsync(eventData);
+                .AppendPathSegment(eventName);
+            _logger.LogDebug($"Making client call to '{url}' using event data: {eventData.ToValuesString()}");
+            var result = await url.PostJsonAsync(eventData);
+            _logger.LogDebug($"Received response from API: {result.StatusCode}/{(string.IsNullOrWhiteSpace(result.ReasonPhrase) ? "no reason" : result.ReasonPhrase)}");
             return result;
         }
 
@@ -48,12 +55,14 @@ namespace AssistantAPI.Gateway
                 .AppendPathSegment("services")
                 .AppendPathSegment(domain)
                 .AppendPathSegment(service);
+            _logger.LogDebug($"Making service call to '{url}' using service data: {serviceData.ToValuesString()}");
             HttpResponseMessage resp;
             if (serviceData != null && serviceData.Any()) {
                 resp = await url.PostJsonAsync(serviceData);
             } else {
                 resp = await url.PostAsync(null);
             }
+            _logger.LogDebug($"Received response from API: {resp.StatusCode}/{(string.IsNullOrWhiteSpace(resp.ReasonPhrase) ? "no reason" : resp.ReasonPhrase)}");
             return resp;
         }
     }

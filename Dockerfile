@@ -6,7 +6,7 @@ COPY src/AssistantAPI.Gateway/*.csproj ./
 RUN dotnet restore
 
 # Copy everything else and build
-COPY src/AssistantAPI.Gateway ./
+COPY src/AssistantAPI.Gateway .
 RUN dotnet publish -c Release -o out
 
 # Build runtime image

@@ -26,8 +26,8 @@ namespace AssistantAPI.Gateway
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseDefaultServiceProvider((ctx, opts) => { })
                 // .ConfigureServices(s => { s.AddTransient<IConfigureOptions<KestrelServerOptions>, KestrelServerOptionsSetup>(); })
-                .ConfigureLogging()
                 .ConfigureAppConfiguration(args)
+                .ConfigureLogging()
                 .UseStartup<Startup>()
                 .Build();
     }
