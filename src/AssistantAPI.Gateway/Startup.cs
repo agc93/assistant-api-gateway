@@ -26,7 +26,7 @@ namespace AssistantAPI.Gateway
             services.AddOptions();
             services.Configure<Configuration.HomeAssistantOptions>(Configuration.GetSection("HomeAssistant"));
             services.AddSingleton<AssistantClient>();
-            services.AddMvc();
+            services.AddMvcServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

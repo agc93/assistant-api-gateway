@@ -5,8 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AssistantAPI.Gateway
 {
@@ -16,9 +19,15 @@ namespace AssistantAPI.Gateway
         {
             BuildWebHost(args).Run();
         }
-
+        
         public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+            new WebHostBuilder()
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseDefaultServiceProvider((ctx, opts) => { })
+                // .ConfigureServices(s => { s.AddTransient<IConfigureOptions<KestrelServerOptions>, KestrelServerOptionsSetup>(); })
+                .ConfigureLogging()
+                .ConfigureAppConfiguration(args)
                 .UseStartup<Startup>()
                 .Build();
     }
